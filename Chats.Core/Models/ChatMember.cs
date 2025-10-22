@@ -12,7 +12,7 @@ namespace Chats.Core.Models
         public Guid UserId { get; set; }
 
         [Column("role")]
-        public string Role { get; set; } = null!;
+        public string Role { get; set; } = "member";
 
         [Column("nickname")]
         public string? Nickname { get; set; }

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS chats (
 CREATE TABLE IF NOT EXISTS chat_members (
     chat_id UUID NOT NULL,
     user_id UUID NOT NULL,
-    role VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL DEFAULT 'member'
     nickname VARCHAR(255),
     PRIMARY KEY (chat_id, user_id),
     CONSTRAINT fk_chat FOREIGN KEY (chat_id) REFERENCES chats(id)

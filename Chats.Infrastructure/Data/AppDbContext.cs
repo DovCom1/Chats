@@ -45,6 +45,11 @@ namespace Chats.Infrastructure.Data
                 .WithMany(c => c.Members)
                 .HasForeignKey(cm => cm.ChatId);
 
+            modelBuilder.Entity<ChatMember>()
+                .Property(cm => cm.Role)
+                .HasMaxLength(50)
+                .HasDefaultValue("member");
+
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Chat)
                 .WithMany(c => c.Messages)
