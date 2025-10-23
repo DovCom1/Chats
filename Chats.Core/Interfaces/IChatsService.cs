@@ -15,5 +15,6 @@ namespace Chats.Core.Interfaces
         Task DeleteMessageAsync(Guid chatId, Guid messageId, Guid userId);
         Task<bool> CanUserModifyMessageAsync(Guid messageId, Guid userId);
         Task<ChatListResponseDto> GetUserChatsAsync(Guid userId, int pageNumber, int pageSize);
+        Task<Guid> GetOrCreatePrivateChatAsync(Guid senderId, Guid receiverId);
     }
 }

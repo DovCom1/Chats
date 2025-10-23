@@ -8,7 +8,7 @@ namespace Chats.Core.Interfaces
 
         Task<ChatMembersResponseDto> GetChatMembersAsync(Guid chatId);
 
-        Task<MessageDto> SendMessageAsync(Guid chatId, Guid senderId, string content);
+        //Task<MessageDto> SendMessageAsync(Guid chatId, Guid senderId, string content);
 
         Task<ChatHistoryDto> GetChatHistoryAsync(Guid chatId, int pageNumber, int pageSize);
 
@@ -23,5 +23,6 @@ namespace Chats.Core.Interfaces
         Task RemoveUserFromChatAsync(Guid chatId, Guid userId);
 
         Task<bool> CanUserModifyMessageAsync(Guid messageId, Guid userId);
+        Task<MessageDto> SendMessageAsync(Guid? chatId, SendMessageRequestDTO dto);
     }
 }

@@ -12,6 +12,8 @@ namespace Chats.Core.Interfaces
         Task<bool> DoesMessageBelongToChatAsync(Guid chatId, Guid messageId);
         Task<IEnumerable<Chat>> GetChatsByUserIdAsync(Guid userId);
         Task<ChatType?> GetChatTypeAsync(Guid chatId);
+        Task<Guid?> FindPrivateChatAsync(Guid userA, Guid userB);
+        Task<Guid> CreatePrivateChatAsync(Guid userA, Guid userB);
 
     }
 }

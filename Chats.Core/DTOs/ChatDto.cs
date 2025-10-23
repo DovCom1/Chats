@@ -1,4 +1,6 @@
-﻿namespace Chats.Core.DTOs
+﻿using Chats.Core.Enums;
+
+namespace Chats.Core.DTOs
 {
     public class ChatDto
     {
@@ -6,7 +8,7 @@
         public string? Name { get; set; }
         public Guid? AdminId { get; set; }
         public string? AvatarUrl { get; set; }
-        public string? Type { get; set; }
+        public ChatType Type { get; set; }
     }
 
 }

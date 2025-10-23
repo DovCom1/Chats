@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS chats (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    type VARCHAR(255) NOT NULL CHECK (type IN ('private', 'group')),
+    type VARCHAR(255) NOT NULL,
     name VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     avatar_url VARCHAR(255)
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS chats (
 CREATE TABLE IF NOT EXISTS chat_members (
     chat_id UUID NOT NULL,
     user_id UUID NOT NULL,
-    role VARCHAR(255) NOT NULL DEFAULT 'member'
+    role VARCHAR(255) NOT NULL,
     nickname VARCHAR(255),
     PRIMARY KEY (chat_id, user_id),
     CONSTRAINT fk_chat FOREIGN KEY (chat_id) REFERENCES chats(id)

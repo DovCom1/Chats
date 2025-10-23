@@ -1,4 +1,5 @@
 ﻿using Chats.Core.DTOs;
+using Chats.Core.Enums;
 using Chats.Core.Interfaces;
 using Chats.Infrastructure.Services;
 
@@ -22,7 +23,7 @@ namespace Chats.Service.Managers
             if (chat == null)
                 return null;
 
-            if (chat.Type == "private")
+            if (chat.Type == ChatType.Private)
             {
                 var membersResponse = await _chatService.GetChatMembersAsync(chatId);
                 var otherMember = membersResponse.Members.FirstOrDefault(m => m.UserId != currentUserId);
@@ -51,8 +52,20 @@ namespace Chats.Service.Managers
             return await _chatService.GetChatMembersAsync(chatId);
         }
 
-        public async Task<MessageDto> SendMessageAsync(Guid chatId, Guid senderId, string content) =>
-            await _chatService.SendMessageAsync(chatId, senderId, content);
+        public async Task<MessageDto> SendMessageAsync(Guid? chatId, SendMessageRequestDTO dto)
+        {
+            Guid actualChatId = chatId ?? Guid.Empty;
+
+            if (actualChatId == Guid.Empty)
+            {
+                if (dto.ReceiverId is null)
+                    throw new ArgumentException("ReceiverId is required when chatId is not specified.");
+
+                actualChatId = await _chatService.GetOrCreatePrivateChatAsync(dto.UserId, dto.ReceiverId.Value);
+            }
+
+            return await _chatService.SendMessageAsync(actualChatId, dto.UserId, dto.Content);
+        }
 
         public async Task<ChatHistoryDto> GetChatHistoryAsync(Guid chatId, int pageNumber, int pageSize) =>
             await _chatService.GetChatHistoryAsync(chatId, pageNumber, pageSize);
@@ -70,7 +83,7 @@ namespace Chats.Service.Managers
             foreach (var chat in chatList.Chats)
             {
                 var chatDetails = await _chatService.GetChatAsync(chat.Id, userId);
-                if (chatDetails != null && chatDetails.Type == "private")
+                if (chatDetails != null && chatDetails.Type == ChatType.Private)
                 {
                     var membersResponse = await _chatService.GetChatMembersAsync(chat.Id);
                     var otherMember = membersResponse.Members.FirstOrDefault(m => m.UserId != userId);

@@ -2,7 +2,7 @@
 {
     public enum ChatType
     {
-        group,
-        @private
+        Group,
+        Private
     }
 }

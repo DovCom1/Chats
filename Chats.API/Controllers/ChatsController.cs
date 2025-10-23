@@ -41,7 +41,20 @@ namespace Chats.API.Controllers
         [HttpPost("{chatId}/messages")]
         public async Task<IActionResult> SendMessage(Guid chatId, [FromBody] SendMessageRequestDTO request)
         {
-            await _chatsManager.SendMessageAsync(chatId, request.UserId, request.Content);
+            if (string.IsNullOrWhiteSpace(request.Content))
+                return BadRequest("Content cannot be empty.");
+
+            var message = await _chatsManager.SendMessageAsync(chatId, request);
+            return NoContent();
+        }
+
+        [HttpPost("messages")]
+        public async Task<IActionResult> SendNewMessage([FromBody] SendMessageRequestDTO request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Content))
+                return BadRequest("Content cannot be empty.");
+
+            var message = await _chatsManager.SendMessageAsync(null, request);
             return NoContent();
         }
 

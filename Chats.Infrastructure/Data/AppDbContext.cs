@@ -48,7 +48,7 @@ namespace Chats.Infrastructure.Data
             modelBuilder.Entity<ChatMember>()
                 .Property(cm => cm.Role)
                 .HasMaxLength(50)
-                .HasDefaultValue("member");
+                .HasDefaultValue("Member");
 
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.Chat)

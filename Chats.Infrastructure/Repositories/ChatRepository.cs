@@ -34,7 +34,7 @@ namespace Chats.Infrastructure.Repositories
         public async Task<Guid?> GetAdminIdAsync(Guid chatId)
         {
             return await _context.ChatMembers
-                .Where(cm => cm.ChatId == chatId && cm.Role == "admin")
+                .Where(cm => cm.ChatId == chatId && cm.Role == "Admin")
                 .Select(cm => (Guid?)cm.UserId)
                 .FirstOrDefaultAsync();
         }
@@ -69,6 +69,40 @@ namespace Chats.Infrastructure.Repositories
                 .Where(c => c.Id == chatId)
                 .Select(c => (ChatType?)c.Type)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<Guid?> FindPrivateChatAsync(Guid userA, Guid userB)
+        {
+            var chatId = await (
+                from c in _context.Chats
+                where c.Type == ChatType.Private
+                join m1 in _context.ChatMembers on c.Id equals m1.ChatId
+                join m2 in _context.ChatMembers on c.Id equals m2.ChatId
+                where m1.UserId == userA && m2.UserId == userB
+                select c.Id
+            ).FirstOrDefaultAsync();
+
+            return chatId == Guid.Empty ? null : chatId;
+        }
+
+        public async Task<Guid> CreatePrivateChatAsync(Guid userA, Guid userB)
+        {
+            var chat = new Chat
+            {
+                Id = Guid.NewGuid(),
+                Type = ChatType.Private,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Chats.Add(chat);
+
+            _context.ChatMembers.AddRange(
+                new ChatMember { ChatId = chat.Id, UserId = userA, Role = "Member" },
+                new ChatMember { ChatId = chat.Id, UserId = userB, Role = "Member" }
+            );
+
+            await _context.SaveChangesAsync();
+            return chat.Id;
         }
     }
 }

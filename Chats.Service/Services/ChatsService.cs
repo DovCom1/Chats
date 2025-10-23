@@ -35,7 +35,7 @@ namespace Chats.Application.Services
             string? chatName = chat.Name;
             string? avatarUrl = chat.AvatarUrl;
 
-            if (chat.Type == ChatType.@private)
+            if (chat.Type == ChatType.Private)
             {
                 var members = chat.Members.Where(m => m.UserId != currentUserId).ToList();
                 if (members.Any())
@@ -56,10 +56,9 @@ namespace Chats.Application.Services
                 Name = chatName,
                 AdminId = adminId,
                 AvatarUrl = avatarUrl,
-                Type = chat.Type.ToString()
+                Type = chat.Type
             };
         }
-
 
         public async Task<ChatMembersResponseDto> GetChatMembersAsync(Guid chatId)
         {
@@ -100,6 +99,14 @@ namespace Chats.Application.Services
             await _chatMemberRepository.RemoveMemberAsync(chatId, userId);
         }
 
+        public async Task<Guid> GetOrCreatePrivateChatAsync(Guid senderId, Guid receiverId)
+        {
+            var existingChatId = await _chatRepository.FindPrivateChatAsync(senderId, receiverId);
+            if (existingChatId.HasValue)
+                return existingChatId.Value;
+
+            return await _chatRepository.CreatePrivateChatAsync(senderId, receiverId);
+        }
         public async Task<MessageDto> SendMessageAsync(Guid chatId, Guid senderId, string content)
         {
             var message = new Message
