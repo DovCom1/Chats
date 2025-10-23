@@ -7,25 +7,24 @@ namespace Chats.Service.Managers
 {
     public class ChatsManager : IChatsManager
     {
-        private readonly IChatsService _chatService;
+        private readonly IChatsService _chatsService;
         private readonly UserServiceClient _userServiceClient;
 
-        public ChatsManager(IChatsService chatService, UserServiceClient userServiceClient)
+        public ChatsManager(IChatsService chatsService, UserServiceClient userServiceClient)
         {
-            _chatService = chatService;
+            _chatsService = chatsService;
             _userServiceClient = userServiceClient;
         }
 
-
         public async Task<ChatDto?> GetChatAsync(Guid chatId, Guid currentUserId)
         {
-            var chat = await _chatService.GetChatAsync(chatId, currentUserId);
+            var chat = await _chatsService.GetChatAsync(chatId, currentUserId);
             if (chat == null)
                 return null;
 
             if (chat.Type == ChatType.Private)
             {
-                var membersResponse = await _chatService.GetChatMembersAsync(chatId);
+                var membersResponse = await _chatsService.GetChatMembersAsync(chatId);
                 var otherMember = membersResponse.Members.FirstOrDefault(m => m.UserId != currentUserId);
 
                 if (otherMember != null)
@@ -47,45 +46,16 @@ namespace Chats.Service.Managers
             return chat;
         }
 
-        public async Task<ChatMembersResponseDto> GetChatMembersAsync(Guid chatId)
-        {
-            return await _chatService.GetChatMembersAsync(chatId);
-        }
-
-        public async Task<MessageDto> SendMessageAsync(Guid? chatId, SendMessageRequestDTO dto)
-        {
-            Guid actualChatId = chatId ?? Guid.Empty;
-
-            if (actualChatId == Guid.Empty)
-            {
-                if (dto.ReceiverId is null)
-                    throw new ArgumentException("ReceiverId is required when chatId is not specified.");
-
-                actualChatId = await _chatService.GetOrCreatePrivateChatAsync(dto.UserId, dto.ReceiverId.Value);
-            }
-
-            return await _chatService.SendMessageAsync(actualChatId, dto.UserId, dto.Content);
-        }
-
-        public async Task<ChatHistoryDto> GetChatHistoryAsync(Guid chatId, int pageNumber, int pageSize) =>
-            await _chatService.GetChatHistoryAsync(chatId, pageNumber, pageSize);
-
-        public async Task EditMessageAsync(Guid chatId, Guid messageId, string newContent, Guid userId) =>
-            await _chatService.EditMessageAsync(chatId, messageId, newContent, userId);
-
-        public async Task DeleteMessageAsync(Guid chatId, Guid messageId, Guid userId) =>
-            await _chatService.DeleteMessageAsync(chatId, messageId, userId);
-
         public async Task<ChatListResponseDto> GetUserChatsAsync(Guid userId, int pageNumber, int pageSize)
         {
-            var chatList = await _chatService.GetUserChatsAsync(userId, pageNumber, pageSize);
+            var chatList = await _chatsService.GetUserChatsAsync(userId, pageNumber, pageSize);
 
             foreach (var chat in chatList.Chats)
             {
-                var chatDetails = await _chatService.GetChatAsync(chat.Id, userId);
+                var chatDetails = await _chatsService.GetChatAsync(chat.Id, userId);
                 if (chatDetails != null && chatDetails.Type == ChatType.Private)
                 {
-                    var membersResponse = await _chatService.GetChatMembersAsync(chat.Id);
+                    var membersResponse = await _chatsService.GetChatMembersAsync(chat.Id);
                     var otherMember = membersResponse.Members.FirstOrDefault(m => m.UserId != userId);
                     if (otherMember != null)
                     {
@@ -102,13 +72,13 @@ namespace Chats.Service.Managers
             return chatList;
         }
 
+        public async Task<ChatMembersResponseDto> GetChatMembersAsync(Guid chatId) =>
+            await _chatsService.GetChatMembersAsync(chatId);
+
         public async Task AddUserToChatAsync(Guid chatId, Guid userId, string role, string? nickname = null) =>
-            await _chatService.AddUserToChatAsync(chatId, userId, role, nickname);
+            await _chatsService.AddUserToChatAsync(chatId, userId, role, nickname);
 
         public async Task RemoveUserFromChatAsync(Guid chatId, Guid userId) =>
-            await _chatService.RemoveUserFromChatAsync(chatId, userId);
-
-        public async Task<bool> CanUserModifyMessageAsync(Guid messageId, Guid userId) =>
-            await _chatService.CanUserModifyMessageAsync(messageId, userId);
+            await _chatsService.RemoveUserFromChatAsync(chatId, userId);
     }
 }

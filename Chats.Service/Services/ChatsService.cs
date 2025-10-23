@@ -10,17 +10,15 @@ namespace Chats.Application.Services
     {
         private readonly IChatRepository _chatRepository;
         private readonly IChatMemberRepository _chatMemberRepository;
-        private readonly IMessageRepository _messageRepository;
         private readonly UserServiceClient _userServiceClient;
 
         public ChatsService(
             IChatRepository chatRepository,
             IChatMemberRepository chatMemberRepository,
-            IMessageRepository messageRepository, UserServiceClient userServiceClient)
+            UserServiceClient userServiceClient)
         {
             _chatRepository = chatRepository;
             _chatMemberRepository = chatMemberRepository;
-            _messageRepository = messageRepository;
             _userServiceClient = userServiceClient;
         }
 
@@ -31,7 +29,6 @@ namespace Chats.Application.Services
             if (chat == null) return null;
 
             var adminId = await _chatRepository.GetAdminIdAsync(chatId);
-
             string? chatName = chat.Name;
             string? avatarUrl = chat.AvatarUrl;
 
@@ -68,7 +65,6 @@ namespace Chats.Application.Services
             foreach (var member in members)
             {
                 var userInfo = await _userServiceClient.GetUserMainAsync(member.UserId);
-
                 dtoList.Add(new ChatMemberDto
                 {
                     UserId = member.UserId,
@@ -81,6 +77,15 @@ namespace Chats.Application.Services
             return new ChatMembersResponseDto { Members = dtoList };
         }
 
+        public async Task<Guid> GetOrCreatePrivateChatAsync(Guid senderId, Guid receiverId)
+        {
+            var existingChatId = await _chatRepository.FindPrivateChatAsync(senderId, receiverId);
+            if (existingChatId.HasValue)
+                return existingChatId.Value;
+
+            return await _chatRepository.CreatePrivateChatAsync(senderId, receiverId);
+        }
+
         public async Task AddUserToChatAsync(Guid chatId, Guid userId, string role, string? nickname = null)
         {
             var member = new ChatMember
@@ -90,92 +95,15 @@ namespace Chats.Application.Services
                 Role = role,
                 Nickname = nickname
             };
-
             await _chatMemberRepository.AddMemberAsync(member);
         }
 
-        public async Task RemoveUserFromChatAsync(Guid chatId, Guid userId)
-        {
+        public async Task RemoveUserFromChatAsync(Guid chatId, Guid userId) =>
             await _chatMemberRepository.RemoveMemberAsync(chatId, userId);
-        }
-
-        public async Task<Guid> GetOrCreatePrivateChatAsync(Guid senderId, Guid receiverId)
-        {
-            var existingChatId = await _chatRepository.FindPrivateChatAsync(senderId, receiverId);
-            if (existingChatId.HasValue)
-                return existingChatId.Value;
-
-            return await _chatRepository.CreatePrivateChatAsync(senderId, receiverId);
-        }
-        public async Task<MessageDto> SendMessageAsync(Guid chatId, Guid senderId, string content)
-        {
-            var message = new Message
-            {
-                Id = Guid.NewGuid(),
-                ChatId = chatId,
-                SenderId = senderId,
-                Content = content,
-                SentAt = DateTime.UtcNow
-            };
-
-            var sent = await _messageRepository.SendMessageAsync(message);
-
-            return new MessageDto
-            {
-                Id = sent.Id,
-                SenderId = sent.SenderId,
-                Content = sent.Content,
-                SentAt = sent.SentAt,
-                EditedAt = sent.EditedAt,
-                Deleted = sent.Deleted
-            };
-        }
-
-        public async Task<ChatHistoryDto> GetChatHistoryAsync(Guid chatId, int pageNumber, int pageSize)
-        {
-            var messages = await _messageRepository.GetChatHistoryAsync(chatId, pageNumber, pageSize);
-
-            return new ChatHistoryDto
-            {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                Messages = messages.Select(m => new MessageDto
-                {
-                    Id = m.Id,
-                    SenderId = m.SenderId,
-                    Content = m.Content,
-                    SentAt = m.SentAt,
-                    EditedAt = m.EditedAt,
-                    Deleted = m.Deleted
-                })
-            };
-        }
-
-        public async Task EditMessageAsync(Guid chatId, Guid messageId, string newContent, Guid userId)
-        {
-            if (!await _chatRepository.DoesMessageBelongToChatAsync(chatId, messageId))
-                throw new InvalidOperationException("Message does not belong to this chat");
-
-            await _messageRepository.EditMessageAsync(messageId, newContent, userId);
-        }
-
-        public async Task DeleteMessageAsync(Guid chatId, Guid messageId, Guid userId)
-        {
-            if (!await _chatRepository.DoesMessageBelongToChatAsync(chatId, messageId))
-                throw new InvalidOperationException("Message does not belong to this chat");
-
-            await _messageRepository.DeleteMessageAsync(messageId, userId);
-        }
-
-        public async Task<bool> CanUserModifyMessageAsync(Guid messageId, Guid userId)
-        {
-            return await _messageRepository.CanUserModifyMessageAsync(messageId, userId);
-        }
 
         public async Task<ChatListResponseDto> GetUserChatsAsync(Guid userId, int pageNumber, int pageSize)
         {
             var allChats = await _chatRepository.GetChatsByUserIdAsync(userId);
-
             var chats = allChats
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

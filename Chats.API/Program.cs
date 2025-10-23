@@ -4,6 +4,7 @@ using Chats.Infrastructure.Data;
 using Chats.Infrastructure.Repositories;
 using Chats.Infrastructure.Services;
 using Chats.Service.Managers;
+using Chats.Service.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +19,10 @@ builder.Services.AddScoped<IChatMemberRepository, ChatMemberRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddScoped<IChatsService, ChatsService>();
+builder.Services.AddScoped<IMessagesService, MessagesService>();
+
 builder.Services.AddScoped<ChatsManager>();
+builder.Services.AddScoped<MessagesManager>();
 
 builder.Services.AddHttpClient<UserServiceClient>(client =>
 {
@@ -39,4 +43,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
