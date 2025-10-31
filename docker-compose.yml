@@ -1,0 +1,35 @@
+services:
+  chats-db:
+    image: postgres:15
+    container_name: chats-db
+    environment:
+      POSTGRES_DB: chatdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 561928
+    ports:
+      - "5434:5432"
+    volumes:
+      - chats_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  chats-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chats-api
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=chats-db;Port=5432;Database=chatdb;Username=postgres;Password=561928
+      - UserService__BaseUrl=http://user-service:8080  
+    depends_on:
+      - chats-db
+
+volumes:
+  chats_pgdata:
