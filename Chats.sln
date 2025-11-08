@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chats.Service", "Chats.Service\Chats.Service.csproj", "{55D3CE15-6F17-4B84-944B-03F8A1CE4180}"
+	ProjectSection(ProjectDependencies) = postProject
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3} = {09AF3463-2C3B-42C5-AB31-1E158BF593B3}
+		{A363D8D8-93BF-4CC4-9497-4759BD289C44} = {A363D8D8-93BF-4CC4-9497-4759BD289C44}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chats.Core", "Chats.Core\Chats.Core.csproj", "{09AF3463-2C3B-42C5-AB31-1E158BF593B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chats.Infrastructure", "Chats.Infrastructure\Chats.Infrastructure.csproj", "{A363D8D8-93BF-4CC4-9497-4759BD289C44}"
+	ProjectSection(ProjectDependencies) = postProject
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3} = {09AF3463-2C3B-42C5-AB31-1E158BF593B3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chats.API", "Chats.API\Chats.API.csproj", "{BCB534B7-739E-96EC-BFCE-5D5A7A12A36F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3} = {09AF3463-2C3B-42C5-AB31-1E158BF593B3}
+		{55D3CE15-6F17-4B84-944B-03F8A1CE4180} = {55D3CE15-6F17-4B84-944B-03F8A1CE4180}
+		{A363D8D8-93BF-4CC4-9497-4759BD289C44} = {A363D8D8-93BF-4CC4-9497-4759BD289C44}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{754FC069-D67B-A9D7-50A1-8D1CA196D8F1}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55D3CE15-6F17-4B84-944B-03F8A1CE4180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55D3CE15-6F17-4B84-944B-03F8A1CE4180}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55D3CE15-6F17-4B84-944B-03F8A1CE4180}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55D3CE15-6F17-4B84-944B-03F8A1CE4180}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09AF3463-2C3B-42C5-AB31-1E158BF593B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A363D8D8-93BF-4CC4-9497-4759BD289C44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A363D8D8-93BF-4CC4-9497-4759BD289C44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A363D8D8-93BF-4CC4-9497-4759BD289C44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A363D8D8-93BF-4CC4-9497-4759BD289C44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCB534B7-739E-96EC-BFCE-5D5A7A12A36F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCB534B7-739E-96EC-BFCE-5D5A7A12A36F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCB534B7-739E-96EC-BFCE-5D5A7A12A36F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCB534B7-739E-96EC-BFCE-5D5A7A12A36F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34DC61C9-E349-43C6-9D1A-8D6865603EE1}
+	EndGlobalSection
+EndGlobal
