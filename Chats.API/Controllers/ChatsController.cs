@@ -65,6 +65,19 @@ namespace Chats.API.Controllers
             return NoContent();
         }
 
+        [HttpPost("add")]
+        public async Task<IActionResult> CreatePrivateChat([FromBody] CreatePrivateChatRequestDto request)
+        {
+            if (request == null || request.UserIds.Count != 2)
+                return BadRequest("Exactly two userIds are required");
+
+            var chat = await _chatsManager.CreatePrivateChatAsync(
+                request.UserIds[0],
+                request.UserIds[1]);
+
+            return Ok(chat);
+        }
+
         [HttpPost("{chatId}/messages")]
         public async Task<IActionResult> SendMessage(Guid chatId, [FromBody] SendMessageRequestDTO request)
         {

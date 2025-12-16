@@ -71,6 +71,16 @@ namespace Chats.Service.Managers
 
             return chatList;
         }
+        public async Task<ChatDto> CreatePrivateChatAsync(Guid userA, Guid userB)
+        {
+            var chatId = await _chatsService.GetOrCreatePrivateChatAsync(userA, userB);
+
+            var chat = await GetChatAsync(chatId, userA);
+            if (chat == null)
+                throw new InvalidOperationException("Chat creation failed");
+
+            return chat;
+        }
 
         public async Task<ChatMembersResponseDto> GetChatMembersAsync(Guid chatId) =>
             await _chatsService.GetChatMembersAsync(chatId);
