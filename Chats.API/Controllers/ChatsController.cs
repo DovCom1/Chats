@@ -17,17 +17,10 @@ namespace Chats.API.Controllers
             _messagesManager = messagesManager;
         }
 
-        [HttpGet("{chatId}")]
-        public async Task<IActionResult> GetChat(Guid chatId)
+        [HttpGet("{chatId}/{userId}")]
+        public async Task<IActionResult> GetChat(Guid chatId, Guid userId)
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
-            if (userIdClaim == null)
-                return Unauthorized();
-
-            if (!Guid.TryParse(userIdClaim.Value, out var currentUserId))
-                return BadRequest("Invalid user id");
-
-            var chat = await _chatsManager.GetChatAsync(chatId, currentUserId);
+            var chat = await _chatsManager.GetChatAsync(chatId, userId);
             if (chat == null)
                 return NotFound();
 
