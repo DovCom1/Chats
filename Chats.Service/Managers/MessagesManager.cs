@@ -1,6 +1,8 @@
-﻿using Chats.Core.DTOs;
+﻿using System.Text.Json;
+using Chats.Core.DTOs;
 using Chats.Core.Interfaces;
 using Chats.Infrastructure.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Chats.Service.Managers
 {
@@ -10,17 +12,20 @@ namespace Chats.Service.Managers
         private readonly IChatsService _chatsService;
         private readonly INotifierChangerClient _notifierChangerClient; 
         private readonly UserServiceClient _userServiceClient;
+        private readonly ILogger<MessagesManager> _logger;
 
         public MessagesManager(
             IMessagesService messagesService,
             IChatsService chatsService,
             INotifierChangerClient notifierChangerClient,
-            UserServiceClient userServiceClient)
+            UserServiceClient userServiceClient,
+            ILogger<MessagesManager> logger)
         {
             _messagesService = messagesService;
             _chatsService = chatsService;
             _notifierChangerClient = notifierChangerClient;
             _userServiceClient = userServiceClient;
+            _logger = logger;
         }
 
         public async Task<MessageDto> SendMessageAsync(Guid? chatId, SendMessageRequestDTO dto)
@@ -48,7 +53,7 @@ namespace Chats.Service.Managers
 
             var savedMessage = await _messagesService.SendMessageAsync(actualChatId, dto.UserId, dto.Content);
 
-            _ = SendEventSafeAsync(actualChatId, dto.UserId, receiverId, dto.Content);
+            await SendEventSafeAsync(actualChatId, dto.UserId, receiverId, dto.Content);
 
             return savedMessage;
         }
@@ -57,6 +62,7 @@ namespace Chats.Service.Managers
         {
             try
             {
+                _logger.LogInformation("Sending message to chat {ChatId}", chatId);
                 var senderInfo = await _userServiceClient.GetUserMainAsync(senderId);
 
                 var receiverInfo = (receiverId != Guid.Empty)
@@ -67,6 +73,7 @@ namespace Chats.Service.Managers
 
                 var eventDto = new MessageEventDto
                 {
+                    TypeDto = "SendMessage",
                     SenderId = senderId,
                     ReceiverId = receiverId,
                     ChatId = chatId,
@@ -76,12 +83,12 @@ namespace Chats.Service.Managers
                     ChatName = chatInfo?.Name,
                     CreatedAt = DateTime.UtcNow
                 };
-
+                _logger.LogInformation($"Sending message event: {JsonSerializer.Serialize(eventDto)}");
                 await _notifierChangerClient.SendMessageEventAsync(eventDto);
             }
             catch
             {
-
+                throw new Exception("Unable to send message to chat");
             }
         }
 

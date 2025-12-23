@@ -2,6 +2,7 @@
 {
     public class MessageEventDto
     {
+        public required string TypeDto { get; set; }
         public Guid SenderId { get; set; }
         public Guid ReceiverId { get; set; }
         public Guid ChatId { get; set; }

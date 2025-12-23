@@ -16,7 +16,7 @@ namespace Chats.Infrastructure.Clients
 
         public async Task SendMessageEventAsync(MessageEventDto eventDto)
         {
-            var response = await _httpClient.PostAsJsonAsync("/internal/Event/message", eventDto);
+            var response = await _httpClient.PostAsJsonAsync("/internal/event", eventDto);
             response.EnsureSuccessStatusCode();
         }
     }
