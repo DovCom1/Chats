@@ -17,17 +17,10 @@ namespace Chats.API.Controllers
             _messagesManager = messagesManager;
         }
 
-        [HttpGet("{chatId}")]
-        public async Task<IActionResult> GetChat(Guid chatId)
+        [HttpGet("{chatId}/{userId}")]
+        public async Task<IActionResult> GetChat(Guid chatId, Guid userId)
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId");
-            if (userIdClaim == null)
-                return Unauthorized();
-
-            if (!Guid.TryParse(userIdClaim.Value, out var currentUserId))
-                return BadRequest("Invalid user id");
-
-            var chat = await _chatsManager.GetChatAsync(chatId, currentUserId);
+            var chat = await _chatsManager.GetChatAsync(chatId, userId);
             if (chat == null)
                 return NotFound();
 
@@ -63,6 +56,19 @@ namespace Chats.API.Controllers
         {
             await _chatsManager.RemoveUserFromChatAsync(chatId, userId);
             return NoContent();
+        }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> CreatePrivateChat([FromBody] CreatePrivateChatRequestDto request)
+        {
+            if (request == null || request.UserIds.Count != 2)
+                return BadRequest("Exactly two userIds are required");
+
+            var chat = await _chatsManager.CreatePrivateChatAsync(
+                request.UserIds[0],
+                request.UserIds[1]);
+
+            return Ok(chat);
         }
 
         [HttpPost("{chatId}/messages")]

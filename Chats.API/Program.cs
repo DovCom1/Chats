@@ -1,5 +1,6 @@
 using Chats.Application.Services;
 using Chats.Core.Interfaces;
+using Chats.Infrastructure.Clients;
 using Chats.Infrastructure.Data;
 using Chats.Infrastructure.Repositories;
 using Chats.Infrastructure.Services;
@@ -27,6 +28,11 @@ builder.Services.AddScoped<MessagesManager>();
 builder.Services.AddHttpClient<UserServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["UserService:BaseUrl"]!);
+});
+
+builder.Services.AddHttpClient<INotifierChangerClient, NotifierChangerClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["NotifierChanger:BaseUrl"]!);
 });
 
 builder.Services.AddEndpointsApiExplorer();
